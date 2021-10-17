@@ -1,1 +1,1 @@
-web: python3 -m DataCollectionBot
+web: python3 -m CommitMessageBot
