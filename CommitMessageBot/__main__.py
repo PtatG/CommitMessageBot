@@ -25,6 +25,7 @@ async def push_event(event, gh, db, *args, **kwargs):
     repo_url = event.data["repository"]["html_url"]
     username = event.data["sender"]["login"]
     user_id = event.data["sender"]["id"]
+    likes = 0
     num_commits = len(event.data["commits"])
     # store the commit data into lists
     commits = []
@@ -53,6 +54,7 @@ async def push_event(event, gh, db, *args, **kwargs):
         "repo_url": repo_url,
         "username": username,
         "user_id": user_id,
+        "likes": likes,
         "num_commits": num_commits,
         "commits": commits
     }
