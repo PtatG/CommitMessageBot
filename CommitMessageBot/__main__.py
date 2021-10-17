@@ -1,6 +1,7 @@
 """
 Project name: Commit Message Bot
 Written by: Phillip Tat
+Date written: 8/23/21
 For: UCF Senior Design Project
 Purpose: Help evaluate commit messages through a likes system.
 """
@@ -16,6 +17,52 @@ routes = web.RouteTableDef()
 
 @router.register("push")
 async def push_event(event, gh, db, *args, **kwargs):
+    # data collection of push payload
+    repo_owner = event.data["repository"]["owner"]["login"]
+    repo_full_name = event.data["repository"]["full_name"]
+    repo_name = event.data["repository"]["name"]
+    repo_id = event.data["repository"]["id"]
+    repo_url = event.data["repository"]["html_url"]
+    username = event.data["sender"]["login"]
+    user_id = event.data["sender"]["id"]
+    num_commits = len(event.data["commits"])
+    # store the commit data into lists
+    commits = []
+    # check whether commit is distinct
+    non_distinct_commit = 0
+
+    for comm in event.data["commits"]:
+        commits.append({
+            "commit_id": comm["id"],
+            "distinct": comm["distinct"],
+            "commit_time": comm["timestamp"]
+        })
+        # keep count of number of commits that are not distinct
+        if not comm["distinct"]:
+            non_distinct_commit += 1
+
+    # remove non_distinct_commits from num_commits
+    num_commits = num_commits - non_distinct_commit
+
+    # create the data collection payload
+    payload = {
+        "repo_owner": repo_owner,
+        "repo_full_name": repo_full_name,
+        "repo_name": repo_name,
+        "repo_id": repo_id,
+        "repo_url": repo_url,
+        "username": username,
+        "user_id": user_id,
+        "num_commits": num_commits,
+        "commits": commits
+    }
+    # find user in user_commits
+    user = db.user_commits.find_one({"repo_full_name": repo_full_name, "username": username})
+
+    if user == None:
+        db.user_commits.insert_one(payload)
+    else:
+
 
 # end of push_event
 
