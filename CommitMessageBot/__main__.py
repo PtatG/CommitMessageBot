@@ -34,7 +34,9 @@ async def push_event(event, gh, db, *args, **kwargs):
 
     for comm in event.data["commits"]:
         if comm["distinct"]:
-            # add id to end of commit_url to easily get full commit_url
+            # slice {/sha} off end of commit_url
+            commit_url = commit_url[:-5]
+            # add id to end of commit_url to get full commit_url
             commit_url += comm["id"]
             commits.append({
                 "id": comm["id"],
