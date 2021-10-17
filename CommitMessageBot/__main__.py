@@ -25,7 +25,7 @@ async def push_event(event, gh, db, *args, **kwargs):
     repo_url = event.data["repository"]["html_url"]
     username = event.data["sender"]["login"]
     user_id = event.data["sender"]["id"]
-    likes = 0
+    commit_url = event.data["repository"]["commits_url"]
     num_commits = len(event.data["commits"])
     # store the commit data into lists
     commits = []
@@ -33,13 +33,17 @@ async def push_event(event, gh, db, *args, **kwargs):
     non_distinct_commit = 0
 
     for comm in event.data["commits"]:
-        commits.append({
-            "commit_id": comm["id"],
-            "distinct": comm["distinct"],
-            "commit_time": comm["timestamp"]
-        })
+        if comm["distinct"]:
+            # add id to end of commit_url to easily get full commit_url
+            commit_url += comm["id"]
+            commits.append({
+                "id": comm["id"],
+                "url": commit_url,
+                "likes": 0,
+                "timestamp": comm["timestamp"]
+            })
         # keep count of number of commits that are not distinct
-        if not comm["distinct"]:
+        else:
             non_distinct_commit += 1
 
     # remove non_distinct_commits from num_commits
@@ -54,17 +58,28 @@ async def push_event(event, gh, db, *args, **kwargs):
         "repo_url": repo_url,
         "username": username,
         "user_id": user_id,
-        "likes": likes,
         "num_commits": num_commits,
         "commits": commits
     }
     # find user in user_commits
-    user = db.user_commits.find_one({"repo_full_name": repo_full_name, "username": username})
+    user = db.commBotCommits.find_one({
+        "repo_full_name": repo_full_name,
+        "username": username
+    })
 
     if user == None:
-        db.user_commits.insert_one(payload)
+        db.commBotCommits.insert_one(payload)
     else:
-
+        num_commits += user["num_commits"]
+        # append new commits to end of user's commits array/list
+        user["commits"] += commits
+        db.commBotCommits.update_one({
+            "repo_full_name": repo_full_name,
+            "username": username
+        }, {"$set": {
+                "num_commits": num_commits,
+                "commits": user["commits"]
+        }})
 
 # end of push_event
 
