@@ -42,6 +42,8 @@ async def push_event(event, gh, db, *args, **kwargs):
             commits.append({
                 "id": comm["id"],
                 "url": commit_url,
+                "author": comm["author"]["username"],
+                "committer": comm["committer"]["username"],
                 "likes": 0,
                 "timestamp": comm["timestamp"]
             })
