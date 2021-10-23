@@ -54,7 +54,6 @@ async def push_event(event, gh, db, *args, **kwargs):
     # remove non_distinct_commits from num_commits
     num_commits = num_commits - non_distinct_commit
 
-    # create the data collection payload
     payload = {
         "repo_owner": repo_owner,
         "repo_full_name": repo_full_name,
