@@ -25,7 +25,7 @@ async def push_event(event, gh, db, *args, **kwargs):
     repo_url = event.data["repository"]["html_url"]
     username = event.data["sender"]["login"]
     user_id = event.data["sender"]["id"]
-    commit_url = event.data["repository"]["commits_url"]
+    temp_commit_url = event.data["repository"]["commits_url"]
     num_commits = len(event.data["commits"])
     # store the commit data into lists
     commits = []
@@ -35,10 +35,10 @@ async def push_event(event, gh, db, *args, **kwargs):
     for comm in event.data["commits"]:
         if comm["distinct"]:
             # slice {/sha} off end of commit_url
-            commit_url = commit_url[:-6]
+            commit_url = temp_commit_url[:-6]
             # add id to end of commit_url to get full commit_url
             commit_url += "/" + comm["id"]
-            commit_html_url = repo_url + "/" + comm["id"]
+            commit_html_url = repo_url + "commit/" + comm["id"]
             commits.append({
                 "id": comm["id"],
                 "url": commit_url,
