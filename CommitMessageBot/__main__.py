@@ -36,12 +36,13 @@ async def push_event(event, gh, db, *args, **kwargs):
         if comm["distinct"]:
             # slice {/sha} off end of commit_url
             commit_url = commit_url[:-6]
-            commit_url += "/"
             # add id to end of commit_url to get full commit_url
-            commit_url += comm["id"]
+            commit_url += "/" + comm["id"]
+            commit_html_url = repo_url + "/" + comm["id"]
             commits.append({
                 "id": comm["id"],
                 "url": commit_url,
+                "html_url": commit_html_url,
                 "author": comm["author"]["username"],
                 "committer": comm["committer"]["username"],
                 "likes": 0,
