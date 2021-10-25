@@ -38,7 +38,7 @@ async def push_event(event, gh, db, *args, **kwargs):
             commit_url = temp_commit_url[:-6]
             # add id to end of commit_url to get full commit_url
             commit_url += "/" + comm["id"]
-            commit_html_url = repo_url + "commit/" + comm["id"]
+            commit_html_url = repo_url + "/commit/" + comm["id"]
             commits.append({
                 "id": comm["id"],
                 "url": commit_url,
